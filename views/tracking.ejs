@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Page</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <%- include('sidebar', { user: user } ) %>
+        <section class="main-content">
+            <p id="timerDisplay">00:00</p>
+            <p id="test"></p>
+            <button id="startBtn">Start</button>
+            <button id="endBtn">End</button>
+            <input type="text" id="name" name="name" placeholder="Type activity name">
+            <label for="newProject" >Create a new project</label>
+            <input type="text" id="newProject" name="newProject" placeholder="Project Name">
+        </section>
+    </div>
+</body>
+<script>
+    document.getElementById("startBtn").addEventListener("click", async () => {
+        const response = await fetch("/api/timer/start", { // make a call to Timer service
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: 1, activity_name: "Example Task" }),
+        });
+        const data = await response.json();
+        print(data);
+        startTime = Date.now();
+        updateTimerDisplay();
+        timerInterval = setInterval(updateTimerDisplay, 1000);
+    })
+
+    document.getElementById("endBtn").addEventListener("click", async () => {
+        clearInterval(timerInterval);
+        document.getElementById("timerDisplay").textContent = "00:00";
+    })
+
+    function updateTimerDisplay() {
+        let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        let minutes = Math.floor(elapsedTime / 60);
+        let seconds = elapsedTime % 60;
+        document.getElementById("timerDisplay").textContent =
+            String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
+    }
+
+
+</script>
+</html>

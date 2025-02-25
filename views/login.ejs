@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Page</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <%- include('sidebar', { user: user } ) %>
+        <section class="main-content">
+            <h1>Please login to start tracking!</h1>
+            <a href="/auth/google">Log in</a>
+            <div id="g_id_onload"
+                data-client_id="672488726917-t0h0g425ordr0sneavk86r6argsec79f.apps.googleusercontent.com"
+                data-login_uri="http://localhost:3000/auth/google/callback"
+                data-auto_prompt="false">
+            </div>
+
+            <div class="g_id_signin"
+                data-type="standard"></div>
+
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+        </section>
+    </div>
+</body>
