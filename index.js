@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require('express');
-const pool = require("./db");
 const passport = require('passport');
 const session = require('express-session');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -9,6 +8,8 @@ const fs = require('fs');
 
 // Timer component endpoints
 const {startTimer, stopTimer, getActiveTimers} = require('./service/timer');
+// DB endpoints
+const {pool, testDB} = require("./db");
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ const app = express();
 app.use(session({
     secret: "secret",
     resave: false,
-    saveUninitalized: true,
+    saveUninitalized: true, // Some bullshit that needs to be taken care of
 })
 );
 
@@ -117,7 +118,8 @@ app.get('/tracking', (req, res) => {
     res.render(page, {user: user});
 });
 
-app.get('/analytics', (req, res) => {
+app.get('/analytics', async (req, res) => {
+    const result = await testDB(); // Wait for the database query to finish
     if (req.user) {
         user = req.user.displayName
         page = 'analytics';
@@ -125,7 +127,7 @@ app.get('/analytics', (req, res) => {
         user = "anon";
         page = 'login';
     }
-    res.render(page, {user: user});
+    res.render(page, {user: user, test: result});
 });
 
 app.get('/logout', (req, res) => {
