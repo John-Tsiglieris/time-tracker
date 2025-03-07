@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Page</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <section class="main-content">
+            <form id="registerForm" action="/users" method="POST">
+                <input type="text" id="email" name="email" placeholder="Enter email" required>
+                <input type="text" id="password" name="password" placeholder="Enter password" required>
+                <button type="submit">Register</button>
+            </form>
+            <div id="emailError"></div>
+            <a href="/auth/google">Sign up with Google</a>
+        </section>
+    </div>
+</body>
+<script>
+    document.getElementById("registerForm").addEventListener("submit", function(event) {
+        const emailInput = document.getElementById("email").value;
+        if (emailInput.endsWith("@gmail.com")) {
+            document.getElementById("emailError").innerText = "Gmail accounts must use Google login.";
+            event.preventDefault(); // Prevent form submission
+        }
+    });
+</script>
+</html>
