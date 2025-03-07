@@ -61,6 +61,7 @@ async function stopTimer(email, activity) {
         [userId, activity, project, timerState.start, end.toISOString()] // userid is the foreign key referencing the email field of tracker-users
         );
         //const res = await pool.query('SELECT NOW()');
+        //console.log(res);
         //return `Database connected at:, ${res.rows[0].now}`;
     } catch (error) {
         console.error("Error stopping timer: ", error.message);

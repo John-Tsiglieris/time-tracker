@@ -71,12 +71,10 @@
 
     /* Sidebar: Hours of the Day */
     .hours {
-        display: flex;
-        flex-direction: column;
+        display: grid;
         width: 60px;
         text-align: center;
         background: #333;
-        padding: 5px;
         border-right: 1px solid #444;
     }
 
@@ -85,12 +83,17 @@
         font-size: 12px;
     }
 
-    /* Calendar Grid (7 days, 24 hours) */
+    .calendar {
+        max-height: 82%; /* Adjust as needed */
+        overflow: auto;
+    }
+
+    /* Calendar Grid (7 days, 24 hours) Half hour only just for display */
     .calendar-grid {
         display: grid;
         flex: 1;
         grid-template-columns: repeat(7, 1fr);
-        grid-template-rows: repeat(24, 1fr);
+        grid-template-rows: repeat(46, 1fr);
         gap: 1px;
         background: #111;
     }
@@ -99,6 +102,7 @@
         border: 1px solid #444;
         height: 40px;
         background: rgba(255, 255, 255, 0.05);
+        border: 1px solid gray;
     }
 
     /* Event Styling */
@@ -135,7 +139,7 @@
 
 
 
-            <section>
+            <section class="calendar">
                 <div class="time-header"> 
                     <button id="prevWeek">Back</button>
                     <button id="nextWeek">Forward</button>
@@ -361,10 +365,12 @@
         
         console.log("calling updateActivityDisplay");
         const activities = await response.json();
+        console.log("ACTIVITIES: ", activities);
         updateActivityDisplay(activities);
     }
 
 
+    /*
     function updateActivityDisplay(activities) {
         const grid = document.querySelector(".calendar-grid");
         grid.innerHTML = ""; // Clear existing events
@@ -390,9 +396,74 @@
             grid.appendChild(eventElement);
             console.log("activity created!");
         });
+        createGrid();
+    }
+    */
+    
+
+    
+    function updateActivityDisplay(activities) {
+        const grid = document.querySelector(".calendar-grid");
+        grid.innerHTML = ""; // Clear existing events
+
+        console.log("about to create activities:");
+
+        activities.forEach(activity => {
+            console.log("activity.start: ", activity.start);
+            const startDate = new Date(activity.start);
+            const endDate = new Date(activity.end);
+            console.log("startDate: ", startDate);
+
+            const dayOfWeek = startDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+            const startHour = startDate.getHours();
+            console.log("startHour: ", startHour);
+            const startMinute = startDate.getMinutes();
+            console.log("startMinute: ", startMinute);
+
+            const endHour = endDate.getHours();
+            const endMinute = endDate.getMinutes();
+
+            const startTotalMinutes = startHour * 60 + startMinute;
+            console.log("startTotalMinutes: ", startTotalMinutes); // debug
+            const endTotalMinutes = endHour * 60 + endMinute;
+
+            const durationMinutes = endTotalMinutes - startTotalMinutes;
+
+            // Align to half-hour increments
+            const startHalfHours = Math.floor(startTotalMinutes / 30);
+            console.log(startHalfHours);
+            const durationHalfHours = Math.ceil(durationMinutes / 30); // Use ceil to ensure full coverage
+
+            // Create event element
+            const eventElement = document.createElement("div");
+            eventElement.classList.add("event");
+            eventElement.style.gridColumn = dayOfWeek + 1; // Align with the day's column
+            eventElement.style.gridRow = `${startHalfHours + 1} / span ${Math.max(durationHalfHours, 1)}`;
+            eventElement.innerText = activity.activityName;
+
+            //debug
+            console.log("row: ", `${startHalfHours + 1} / span ${Math.max(durationHalfHours, 1)}`);
+            console.log(startHalfHours);
+            grid.appendChild(eventElement);
+            console.log("activity created!");
+        });
+        createGrid();
+    }
+    
+
+    function createGrid() {
+        const grid = document.querySelector(".calendar-grid");
+
+        for (let i = 0; i < 7 * 24 * 2; i++) { // 7 days × 24 hours
+            const cell = document.createElement("div");
+            cell.classList.add("grid-cell");
+            grid.appendChild(cell);
+        }
+
     }
 
-
+    createGrid();
     fetchActivities();
     updateWeekDisplay();
 </script>
