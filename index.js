@@ -384,4 +384,4 @@ app.get('/debug-session', (req, res) => {
     res.json(req.session);
 });
 
-module.exports = router; // Q: What does this do?
+module.exports = {router, app}; // Q: What does this do?
