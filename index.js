@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require('express');
+const serverless = require("serverless-http"); // Needed for Vercel
 const passport = require('passport');
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
@@ -384,4 +385,5 @@ app.get('/debug-session', (req, res) => {
     res.json(req.session);
 });
 
-module.exports = {router, app}; // Q: What does this do?
+module.exports = {router, app};
+module.exports.handler = serverless(app); // Important for Vercel
