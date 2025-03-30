@@ -1,8 +1,7 @@
 const {pool}  = require('../db'); // Import the database connection
-console.log("pool: ", pool);
+//console.log("pool: ", pool); //debug
 
 async function fetchActivities(user, week) {
-    console.log("fetching activities!");
     // get primary key given email
     const userQuery = await pool.query(
         `SELECT id FROM "tracker-users" WHERE email = $1;`,
@@ -23,14 +22,10 @@ async function fetchActivities(user, week) {
         AND EXTRACT(YEAR FROM "end") = EXTRACT(YEAR FROM NOW());`,
         [userId, week]
     );
-    /*
-    const activityQuery = await pool.query(
-        `SELECT EXTRACT(WEEK FROM DATE '2025-03-03') AS iso_week;`//,
-        //[userId]
-    );
-    */
     
-    console.log(activityQuery.rows);
+    // DEBUG
+    //console.log("fetching activities!");
+    //console.log(activityQuery.rows);
     return(activityQuery.rows);
 }
 
