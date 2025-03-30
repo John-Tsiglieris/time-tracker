@@ -36,28 +36,6 @@ async function findOrCreate(email) {
     console.log("breakpoint3");
 }
 
-/*
-async function startTimer(start) {
-    timerState.start = start;
-}
-
-
-async function stopTimer(email, activity) {
-    project = null;
-    end = new Date();
-    try {
-        const query = await pool.query(
-            `INSERT INTO "tracker-activity" (userid, activityName, project, start, end) VALUES ($1, $2, $3, $4, $5) RETURNING *;`,
-        [email, activity, project, timerState.start, end.toISOString()] // userid is the foreign key referencing the email field of tracker-users
-        );
-        //const res = await pool.query('SELECT NOW()');
-        //return `Database connected at:, ${res.rows[0].now}`;
-    } catch (error) {
-        console.error("Error stopping timer: ", error.message);
-    }
-}
-*/
-
 async function createProject(email, project) {
     // get primary key given email
     try {
@@ -83,6 +61,39 @@ async function createProject(email, project) {
     } catch (error) {
         console.error("Error creating project: ", error.message);
     }
+}
+
+async function fetchActivities(user, week) {
+    console.log("fetching activities!");
+    // get primary key given email
+    const userQuery = await pool.query(
+        `SELECT id FROM "tracker-users" WHERE email = $1;`,
+        [user]
+    );
+
+    // If no user is found, return an error
+    if (userQuery.rows.length === 0) {
+        throw new Error("User not found");
+    }
+
+    const userId = userQuery.rows[0].id;
+
+    
+    const activityQuery = await pool.query(
+        `SELECT * FROM "tracker-activity" WHERE userId = $1 
+        AND EXTRACT(WEEK FROM "end") = $2
+        AND EXTRACT(YEAR FROM "end") = EXTRACT(YEAR FROM NOW());`,
+        [userId, week]
+    );
+    /*
+    const activityQuery = await pool.query(
+        `SELECT EXTRACT(WEEK FROM DATE '2025-03-03') AS iso_week;`//,
+        //[userId]
+    );
+    */
+    
+    console.log(activityQuery.rows);
+    return(activityQuery.rows);
 }
 
 //================================================================================
@@ -154,4 +165,4 @@ async function deleteActivityTable() {
 //createSessionTable();
 testDB().then(console.log).catch(console.error);
 
-module.exports = {pool, testDB, findOrCreate, createProject};
+module.exports = {pool, testDB, findOrCreate, createProject, fetchActivities};
