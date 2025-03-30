@@ -1,4 +1,7 @@
+console.log("Vercel test");
+
 require("dotenv").config();
+console.log("dovenv");
 const express = require('express');
 const serverless = require("serverless-http"); // Needed for Vercel
 const passport = require('passport');
@@ -8,6 +11,7 @@ const bcrypt = require('bcrypt');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const pdfService = require('./service/pdf-service');
 const fs = require('fs');
+//console.log("requires all good!"); //debug
 
 // DB endpoints
 const {pool, testDB, findOrCreate, createProject} = require("./db");
@@ -76,7 +80,7 @@ passport.use(
 passport.serializeUser((user, done) => done(null, user)); // could add an id field, but I don't think I will do so yet
 passport.deserializeUser((userdata, done) => done(null, userdata));
 
-const PORT = 3000;
+const PORT = 12000;
 
 // ===========================================================
 // middleware functions
@@ -248,7 +252,7 @@ app.get('/tracking', (req, res) => {
 
 app.get('/analytics', async (req, res) => {
     //console.log('/ session: \n', req.session); // debug
-    const result = await testDB(); // Wait for the database query to finish
+    //const result = await testDB(); // DEBUG log, no longer needed
     if(req.session.user) { // for regular user authentication
         user = req.session.user['email'];
         page = 'analytics';
@@ -260,7 +264,8 @@ app.get('/analytics', async (req, res) => {
         user = "anon";
         page = 'authPrompt';
     }
-    res.render(page, {user: user, test: result});
+    //res.render(page, {user: user, test: result});
+    res.render(page, {user: user,});
 });
 
 app.get('/register', (req,res) => {
@@ -307,13 +312,27 @@ app.get("/profile", (req, res) => {
     res.send(`Welcome ${req.user.email}`);
 });
 
-app.get('/invoice', (req, res, next) => {
+app.post('/getAnalytics', getUserSessionEmail, async (req, res, next) => {
+    //const now = new Date();
+    //const firstJan = new Date(now.getFullYear(), 0, 1);
+    //const weekNumber = Math.ceil((((now - firstJan) / 86400000) + firstJan.getDay() + 1) / 7);
+    const { weekNumber } = req.body;
+    console.log("req.body: ", req.body);
+    parsedWeekNumber = parseInt(weekNumber);
+    console.log("weekNumber data: ", weekNumber, " weekNumber type: ", typeof weekNumber);
+    console.log("parsedWeekNumber data: ", parsedWeekNumber, " parsedWeekNumber type: ", typeof ParsedWeekNumber);
+    //console.log("req.body ", req.body); // debug
+    //const { week } = req.body; // for some reason undefined
+    //console.log("week: ", week);
+    const filename = `analytics_week_${parsedWeekNumber}.pdf`;
+    const activityData = await fetchActivities(user, parsedWeekNumber);
+
     const stream = res.writeHead(200, {  // send as a STREAM of data
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment;filename=invoice.pdf'
+        'Content-Disposition': `attachment;filename=${filename}.pdf`
     })
 
-    pdfService.buildPDF(
+    pdfService.buildPDF( activityData,
         (chunk) => stream.write(chunk),
         () => stream.end()
     );
@@ -385,5 +404,13 @@ app.get('/debug-session', (req, res) => {
     res.json(req.session);
 });
 
-module.exports = {router, app};
-module.exports.handler = serverless(app); // Important for Vercel
+//module.exports = {router, app};
+//module.exports.handler = serverless(app); // Important for Vercel
+module.exports = router;
+module.exports = app;
+
+// Export the handler for Vercel
+//export default (req, res) => {
+  //return app(req, res);
+//};
+//export default app;
