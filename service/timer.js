@@ -1,5 +1,5 @@
 const {pool}  = require('../db'); // Import the database connection
-console.log("pool: ", pool);
+//console.log("pool: ", pool); // debug
 
 const timerState = {
     start: null
