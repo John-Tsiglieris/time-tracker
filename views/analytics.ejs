@@ -3,16 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Split Page</title>
+    <title>Time Tracker</title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <div class="container">
         <%- include('sidebar') %>
         <section class="main-content">
-            <a href="/invoice">Export PDF</a>
-            <%- test %>
+            <!-- Old way, delete later<a href="/getAnalytics">Export PDF</a> -->
+            <form id="exportForm" method="POST" action="/getAnalytics">
+                <input type="hidden" id="weekInput" name="weekNumber">
+                <button type="submit">Export PDF</button>
+            </form>
+            <div id="weekDisplay">Week # goes here</div>
+    
+            <div class="time-header"> 
+                <button id="prevWeek">Back</button>
+                <button id="nextWeek">Forward</button>
+                <!---
+                <div class="day" id="monday">
+                    <div class="date"></div>
+                    <div>Mon</div>
+                </div>
+                <div class="day" id="tuesday">
+                    <div class="date"></div>
+                    <div>Tue</div>
+                </div>
+                <div class="day" id="wednesday">
+                    <div class="date"></div>
+                    <div>Wed</div>
+                </div>
+                <div class="day" id="thursday">
+                    <div class="date"></div>
+                    <div>Thu</div>
+                </div>
+                <div class="day" id="friday">
+                    <div class="date"></div>
+                    <div>Fri</div>
+                </div>
+                <div class="day" id="saturday">
+                    <div class="date"></div>
+                    <div>Sat</div>
+                </div>
+                <div class="day" id="sunday">
+                    <div class="date"></div>
+                    <div>Sun</div>
+                </div>
+                -->
+            </div>
         </section>
     </div>
 </body>
+<script>
+    document.getElementById("exportForm").addEventListener("submit", function (e) {
+        e.preventDefault(); // stop auto submit
+        const weekNumber = getWeekNumber(currentDate);
+        document.getElementById("weekInput").value = weekNumber;
+        console.log("weeknumber in analytics.ejs", weekNumber);
+        this.submit();
+    });
+    
+
+    function updateTimerDisplay() {
+        console.log("timer start");
+        let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        let minutes = Math.floor(elapsedTime / 60);
+        let seconds = elapsedTime % 60;
+        document.getElementById("timerDisplay").textContent =
+            String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
+    }
+
+
+</script>
+<script>
+    function getWeekNumber(date) {
+        const startOfYear = new Date(date.getFullYear(), 0, 1); // Jan 1st
+        const firstSunday = new Date(startOfYear);
+        firstSunday.setDate(startOfYear.getDate() - startOfYear.getDay()); // Moves back to the first Sunday
+
+        const diff = date - firstSunday;
+        const oneWeek = 1000 * 60 * 60 * 24 * 7;
+        
+        return Math.floor(diff / oneWeek) + 1;
+    }
+
+
+    let currentDate = new Date();
+
+
+    function updateWeekDisplay() {
+        document.getElementById("weekDisplay").innerText = `Week #${getWeekNumber(currentDate)}`;
+
+        // Update week dates (Start from Monday)
+        let startOfWeek = new Date(currentDate);
+        let dayOfWeek = startOfWeek.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        let offset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Adjust so Monday is the first day
+
+        startOfWeek.setDate(startOfWeek.getDate() + offset); // Move to Monday
+
+        /*
+        document.querySelectorAll('.day .date').forEach((el, index) => {
+            let dayDate = new Date(startOfWeek);
+            dayDate.setDate(startOfWeek.getDate() + index);
+            el.innerText = `${dayDate.getDate()}`;
+        });
+        */
+    }
+
+
+    document.getElementById("prevWeek").addEventListener("click", () => {
+        currentDate.setDate(currentDate.getDate() - 7);
+        updateWeekDisplay();
+        //fetchActivities();
+    });
+
+    document.getElementById("nextWeek").addEventListener("click", () => {
+        currentDate.setDate(currentDate.getDate() + 7);
+        updateWeekDisplay();
+        //fetchActivities();
+    });
+
+    updateWeekDisplay();
+</script>
 </html>
