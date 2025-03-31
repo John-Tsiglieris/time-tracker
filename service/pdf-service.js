@@ -21,6 +21,7 @@ module.exports = {buildPDF};
 const {pool, fetchActivities}  = require('../db'); // Import the database connection
 const PDFDocument = require('pdfkit');
 const { ChartJSNodeCanvas } = require('chartjs-node-canvas'); // wrapper around canvas for Chart.js
+const canvas = require('canvas'); // for some reason omitting this works locally, but without this the deployed version breaks
 
 const width = 512;  // canvas width
 const height = 512; // canvas height
